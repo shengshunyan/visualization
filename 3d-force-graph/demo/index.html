@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>3d force graph</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+    <script src="./3d-force-graph.js"></script>
+</head>
+
+<body>
+    <div id="3d-graph"></div>
+
+    <script>
+        const nodeOption = {
+            'db': { color: '#F5A623', size: 12 },
+            'dsInfo': { color: '#F5A623', size: 6 },
+            'tableUnchecked': { color: '#07ADFF', size: 1 },
+            'tableHasNoProblem': { color: '#6EBC18', size: 1 },
+            'tableHasProblem': { color: '#E73047', size: 1 },
+        }
+        const data = {
+            nodes: [
+                { id: 1, label: 'data_quality_database1', type: 'db' },
+                { id: 2, label: 'data_quality_database2', type: 'dsInfo' },
+                { id: 3, label: 'data_quality_database3', type: 'dsInfo' },
+                { id: 4, label: 'data_quality_database4', type: 'tableUnchecked' },
+                { id: 5, label: 'data_quality_database5', type: 'tableHasNoProblem' },
+                { id: 6, label: 'data_quality_database6', type: 'tableHasProblem' },
+                { id: 7, label: 'data_quality_database7', type: 'tableHasNoProblem' },
+                { id: 8, label: 'data_quality_database8', type: 'tableUnchecked' },
+            ],
+            links: [
+                { source: 1, target: 2 },
+                { source: 1, target: 3 },
+                { source: 2, target: 4 },
+                { source: 2, target: 5 },
+                { source: 2, target: 6 },
+                { source: 3, target: 7 },
+                { source: 3, target: 8 },
+            ],
+        }
+        const elem = document.getElementById('3d-graph')
+        const Graph = ForceGraph3D()(elem)
+            .graphData(data)
+            .nodeLabel('label')
+            // .backgroundColor('#FFFFFF')
+            .nodeVal((node) => {
+                return nodeOption[node.type].size
+            })
+            .nodeColor((node) => {
+                return nodeOption[node.type].color
+            })
+            .linkDirectionalParticles(3)
+            .linkDirectionalParticleSpeed(0.01)
+            .linkWidth(.5)
+            .linkDirectionalArrowLength(3.5)
+            .linkDirectionalArrowRelPos(1)
+            .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
+            .onNodeClick(node => {
+                console.log(node)
+            });
+
+    </script>
+</body>
+
+</html>
