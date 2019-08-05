@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>力导图</title>
+    <style>
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html,
+        body {
+            overflow: hidden;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mountNode"></div>
+    <script>/*Fixing iframe window.innerHeight 0 issue in Safari*/document.body.clientHeight;</script>
+    <script src="../options.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g6-3.0.2/build/g6.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/lib/jquery-3.2.1.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/lib/d3-4.13.0.min.js"></script>
+    <script src="./js/images.js"></script>
+    <script>
+        var graph = new G6.Graph({
+            container: 'mountNode',
+            width: window.innerWidth,
+            height: window.innerHeight,
+            autoPaint: false,
+            modes: {
+                default: ['drag-canvas', 'zoom-canvas']
+            },
+            defaultNode: {
+                    size: [10, 10],
+                    color: 'steelblue'
+                },
+                defaultEdge: {
+                    size: 1,
+                    color: '#e2e2e2'
+                },
+                nodeStyle: {
+                    default: {
+                        lineWidth: 2,
+                        fill: '#fff'
+                    }
+                }
+            });
+        var simulation = d3.forceSimulation().force("link", d3.forceLink().id(function (d) {
+            return d.id;
+        }).strength(0.3)).force("charge", d3.forceManyBody()).force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+
+        function refreshPosition(e) {
+            e.item.get('model').x = e.x;
+            e.item.get('model').y = e.y;
+            graph.refreshPositions();
+        }
+        graph.on('node:dragstart', function (e) {
+            simulation.alphaTarget(0.3).restart();
+            refreshPosition(e);
+        });
+        graph.on('node:drag', function (e) {
+            refreshPosition(e);
+        });
+        graph.on('node:dragend', function (e) {
+            simulation.alphaTarget(0);
+            refreshPosition(e);
+        });
+        graph.data({
+            nodes: data.nodes,
+            edges: data.edges.map(function (edge, i) {
+                edge.id = 'edge' + i;
+                return Object.assign({}, edge);
+            })
+        });
+        simulation.nodes(data.nodes).on("tick", ticked);
+        simulation.force("link").links(data.edges);
+
+        graph.render();
+
+        function ticked() {
+            if (!graph.get('data')) {
+                graph.data(data);
+                graph.render();
+            } else {
+                graph.refreshPositions();
+            }
+            graph.paint();
+        }
+    </script>
+</body>
+
+</html>
